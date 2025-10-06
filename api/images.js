@@ -32,7 +32,7 @@ module.exports = async (req, res) => {
     }
     
     // Fetch images from Cloudinary using the correct API format
-    const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/resources/image?prefix=${folder}&max_results=${max}`;
+    const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/resources/image?type=upload&prefix=${folder}&max_results=${max}`;
     
     console.log('Cloudinary URL:', cloudinaryUrl);
     console.log('Environment check:', {
