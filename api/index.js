@@ -1,8 +1,5 @@
-import { v2 as cloudinary } from 'cloudinary';
-import dotenv from 'dotenv';
-
-// Load environment variables
-dotenv.config();
+const { v2: cloudinary } = require('cloudinary');
+require('dotenv').config();
 
 // Configure Cloudinary
 const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
@@ -39,7 +36,7 @@ function sendJson(status, body) {
   };
 }
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   // Handle preflight requests
   if (req.method === 'OPTIONS') {
     return {
@@ -121,4 +118,4 @@ export default async function handler(req, res) {
   }
 
   return sendJson(404, { error: 'Not found' });
-}
+};

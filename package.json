@@ -2,17 +2,16 @@
   "name": "emerald-visions-backend",
   "version": "1.0.0",
   "description": "Backend server for Emerald Visions photography website",
-  "main": "index.js",
-  "type": "module",
+  "main": "api/index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "node index.js"
+    "start": "node api/index.js",
+    "dev": "node api/index.js"
   },
   "dependencies": {
     "cloudinary": "^2.7.0",
     "dotenv": "^16.6.1"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": "18.x"
   }
 }
