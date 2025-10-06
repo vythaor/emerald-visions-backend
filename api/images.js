@@ -26,22 +26,37 @@ module.exports = async (req, res) => {
   });
   
   try {
+    // Check if environment variables are available
+    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+      throw new Error('Cloudinary environment variables not set');
+    }
+    
     // Fetch images from Cloudinary using the correct API format
     const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/resources/image?prefix=${folder}&max_results=${max}`;
     
     console.log('Cloudinary URL:', cloudinaryUrl);
+    console.log('Environment check:', {
+      cloudName: process.env.CLOUDINARY_CLOUD_NAME,
+      apiKey: process.env.CLOUDINARY_API_KEY ? 'Set' : 'Not set',
+      apiSecret: process.env.CLOUDINARY_API_SECRET ? 'Set' : 'Not set'
+    });
     
     const response = await fetch(cloudinaryUrl, {
+      method: 'GET',
       headers: {
-        'Authorization': `Basic ${Buffer.from(process.env.CLOUDINARY_API_KEY + ':' + process.env.CLOUDINARY_API_SECRET).toString('base64')}`
+        'Authorization': `Basic ${Buffer.from(process.env.CLOUDINARY_API_KEY + ':' + process.env.CLOUDINARY_API_SECRET).toString('base64')}`,
+        'Content-Type': 'application/json'
       }
     });
     
     if (!response.ok) {
-      throw new Error(`Cloudinary API error: ${response.status}`);
+      const errorText = await response.text();
+      console.error('Cloudinary API error response:', errorText);
+      throw new Error(`Cloudinary API error: ${response.status} - ${errorText}`);
     }
     
     const data = await response.json();
+    console.log('Cloudinary response:', JSON.stringify(data, null, 2));
     
     // Transform Cloudinary response to our format
     const images = data.resources.map((resource, index) => ({
