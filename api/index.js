@@ -1,4 +1,3 @@
-// Minimal serverless function without external dependencies
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
@@ -40,7 +39,7 @@ module.exports = async function handler(req, res) {
       return sendJson(400, { error: 'Missing folder' });
     }
 
-    // For now, return a simple response to test if the function works
+    // For now, return a simple response to test
     return sendJson(200, { 
       message: 'API is working!', 
       folder: folder,

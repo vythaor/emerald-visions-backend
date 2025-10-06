@@ -2,10 +2,6 @@
   "name": "emerald-visions-backend",
   "version": "1.0.0",
   "description": "Backend server for Emerald Visions photography website",
-  "main": "index.js",
-  "scripts": {
-    "start": "node index.js"
-  },
   "engines": {
     "node": "22.x"
   }
