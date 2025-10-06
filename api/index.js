@@ -1,60 +1,47 @@
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
-  'Access-Control-Max-Age': '86400',
-};
-
-function sendJson(status, body) {
-  return {
-    statusCode: status,
-    headers: {
-      'Content-Type': 'application/json',
-      ...corsHeaders,
-    },
-    body: JSON.stringify(body),
-  };
-}
-
-module.exports = async function handler(req, res) {
+module.exports = (req, res) => {
+  // Set CORS headers
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+  
   // Handle preflight requests
   if (req.method === 'OPTIONS') {
-    return {
-      statusCode: 200,
-      headers: corsHeaders,
-      body: '',
-    };
+    res.status(200).end();
+    return;
   }
-
-  // Parse URL from Vercel request
+  
+  // Get the path from the URL
   const url = new URL(req.url, `https://${req.headers.host}`);
   const pathname = url.pathname;
   const searchParams = url.searchParams;
-
-  if (pathname === '/images' && req.method === 'GET') {
+  
+  console.log('Request received:', { method: req.method, pathname, url: req.url });
+  
+  // Handle different endpoints
+  if (pathname === '/health') {
+    return res.status(200).json({
+      ok: true,
+      timestamp: new Date().toISOString(),
+      message: 'Health check passed'
+    });
+  }
+  
+  if (pathname === '/images') {
     const folder = searchParams.get('folder') || '';
     const max = parseInt(searchParams.get('max')) || 30;
     
-    if (!folder) {
-      return sendJson(400, { error: 'Missing folder' });
-    }
-
-    // For now, return a simple response to test
-    return sendJson(200, { 
-      message: 'API is working!', 
+    return res.status(200).json({
+      message: 'Images API is working!',
       folder: folder,
       max: max,
       timestamp: new Date().toISOString()
     });
   }
-
-  if (pathname === '/health') {
-    return sendJson(200, { 
-      ok: true, 
-      timestamp: new Date().toISOString(),
-      message: 'Health check passed'
-    });
-  }
-
-  return sendJson(404, { error: 'Not found' });
+  
+  // Default response
+  res.status(404).json({
+    error: 'Not found',
+    pathname: pathname,
+    method: req.method
+  });
 };
