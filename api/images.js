@@ -19,10 +19,17 @@ module.exports = async (req, res) => {
   const max = parseInt(searchParams.get('max')) || 30;
   
   console.log('Images function called:', { method: req.method, folder, max, url: req.url });
+  console.log('Environment variables:', {
+    cloudName: process.env.CLOUDINARY_CLOUD_NAME,
+    apiKey: process.env.CLOUDINARY_API_KEY ? 'Set' : 'Not set',
+    apiSecret: process.env.CLOUDINARY_API_SECRET ? 'Set' : 'Not set'
+  });
   
   try {
-    // Fetch images from Cloudinary
-    const cloudinaryUrl = `https://api.cloudinary.com/v1_1/ddwq9besf/resources/image?prefix=${folder}&max_results=${max}`;
+    // Fetch images from Cloudinary using the correct API format
+    const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/resources/image?prefix=${folder}&max_results=${max}`;
+    
+    console.log('Cloudinary URL:', cloudinaryUrl);
     
     const response = await fetch(cloudinaryUrl, {
       headers: {
