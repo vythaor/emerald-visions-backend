@@ -18,7 +18,19 @@ module.exports = async (req, res) => {
   const folder = searchParams.get('folder') || '';
   const max = parseInt(searchParams.get('max')) || 30;
   
-  console.log('Images function called:', { method: req.method, folder, max, url: req.url });
+  // Map folder names to actual Cloudinary folder paths
+  const folderMapping = {
+    'wedding': '2am/wedding',
+    'outdoor': '2am/outdoor', 
+    'sport': '2am/sport',
+    'event': '2am/event',
+    'indoor': '2am/indoor',
+    'home': '2am/home'
+  };
+  
+  const cloudinaryFolder = folderMapping[folder] || `2am/${folder}`;
+  
+  console.log('Images function called:', { method: req.method, folder, cloudinaryFolder, max, url: req.url });
   console.log('Environment variables:', {
     cloudName: process.env.CLOUDINARY_CLOUD_NAME,
     apiKey: process.env.CLOUDINARY_API_KEY ? 'Set' : 'Not set',
@@ -32,7 +44,7 @@ module.exports = async (req, res) => {
     }
     
     // Fetch images from Cloudinary using the correct API format
-    const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/resources/image?type=upload&prefix=${folder}&max_results=${max}`;
+    const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/resources/image?type=upload&prefix=${cloudinaryFolder}&max_results=${max}`;
     
     console.log('Cloudinary URL:', cloudinaryUrl);
     console.log('Environment check:', {
