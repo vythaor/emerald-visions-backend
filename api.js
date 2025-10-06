@@ -49,7 +49,10 @@ export default async function handler(req, res) {
     };
   }
 
-  const { pathname, searchParams } = new URL(req.url, `https://${req.headers.host}`);
+  // Parse URL from Vercel request
+  const url = new URL(req.url, `https://${req.headers.host}`);
+  const pathname = url.pathname;
+  const searchParams = url.searchParams;
 
   if (pathname === '/api/images' && req.method === 'GET') {
     const folder = searchParams.get('folder') || '';
