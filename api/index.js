@@ -1,0 +1,121 @@
+import { v2 as cloudinary } from 'cloudinary';
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
+
+// Configure Cloudinary
+const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+const apiKey = process.env.CLOUDINARY_API_KEY;
+const apiSecret = process.env.CLOUDINARY_API_SECRET;
+
+if (!cloudName || !apiKey || !apiSecret) {
+  console.error('Missing Cloudinary configuration');
+}
+
+cloudinary.config({
+  cloud_name: cloudName,
+  api_key: apiKey,
+  api_secret: apiSecret,
+  secure: true,
+});
+
+// CORS headers
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
+  'Access-Control-Max-Age': '86400',
+};
+
+function sendJson(status, body) {
+  return {
+    statusCode: status,
+    headers: {
+      'Content-Type': 'application/json',
+      ...corsHeaders,
+    },
+    body: JSON.stringify(body),
+  };
+}
+
+export default async function handler(req, res) {
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers: corsHeaders,
+      body: '',
+    };
+  }
+
+  const { pathname, searchParams } = new URL(req.url, `https://${req.headers.host}`);
+
+  if (pathname === '/api/images' && req.method === 'GET') {
+    const folder = searchParams.get('folder') || '';
+    const max = parseInt(searchParams.get('max')) || 30;
+    
+    if (!folder) {
+      return sendJson(400, { error: 'Missing folder' });
+    }
+
+    // Search in the nested folder structure: 2am/{folder}
+    const searchFolder = `2am/${folder}`;
+    console.log(`[cloudinary-server] Searching for images in folder: ${searchFolder}`);
+    
+    try {
+      const result = await cloudinary.search
+        .expression(`folder:${searchFolder} AND resource_type:image`)
+        .sort_by('public_id', 'desc')
+        .max_results(Math.min(Math.max(max, 1), 100))
+        .execute();
+
+      console.log(`[cloudinary-server] Found ${result.resources?.length || 0} resources for folder: ${searchFolder}`);
+      
+      const sources = (result.resources || []).map((r) => {
+        const url = r.secure_url || r.url;
+        console.log(`[cloudinary-server] Resource: ${r.public_id} -> ${url}`);
+        return url;
+      }).filter(Boolean);
+      
+      console.log(`[cloudinary-server] Returning ${sources.length} valid URLs for folder: ${searchFolder}`);
+      return sendJson(200, { folder: searchFolder, count: sources.length, sources });
+    } catch (err) {
+      console.error(`[cloudinary-server] Error searching folder ${searchFolder}:`, err);
+      return sendJson(500, { error: 'Cloudinary search failed', detail: String(err) });
+    }
+  }
+
+  if (pathname === '/api/health') {
+    return sendJson(200, { 
+      ok: true, 
+      timestamp: new Date().toISOString(),
+      cloudinary_configured: !!cloudName
+    });
+  }
+
+  if (pathname === '/api/test' && req.method === 'GET') {
+    const folder = searchParams.get('folder') || 'wedding';
+    const searchFolder = `2am/${folder}`;
+    try {
+      const result = await cloudinary.search
+        .expression(`folder:${searchFolder} AND resource_type:image`)
+        .max_results(10)
+        .execute();
+      
+      return sendJson(200, { 
+        folder: searchFolder, 
+        total: result.total_count,
+        resources: result.resources?.map(r => ({
+          public_id: r.public_id,
+          url: r.secure_url || r.url,
+          folder: r.folder
+        })) || []
+      });
+    } catch (err) {
+      return sendJson(500, { error: String(err) });
+    }
+  }
+
+  return sendJson(404, { error: 'Not found' });
+}
