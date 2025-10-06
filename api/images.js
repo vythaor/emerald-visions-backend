@@ -47,6 +47,11 @@ module.exports = async (req, res) => {
     const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/resources/image?type=upload&prefix=${cloudinaryFolder}&max_results=${max}`;
     
     console.log('Cloudinary URL:', cloudinaryUrl);
+    console.log('Searching for prefix:', cloudinaryFolder);
+    
+    // Also try without prefix to see if we can get any images
+    const testUrl = `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/resources/image?type=upload&max_results=5`;
+    console.log('Test URL (no prefix):', testUrl);
     console.log('Environment check:', {
       cloudName: process.env.CLOUDINARY_CLOUD_NAME,
       apiKey: process.env.CLOUDINARY_API_KEY ? 'Set' : 'Not set',
@@ -69,6 +74,8 @@ module.exports = async (req, res) => {
     
     const data = await response.json();
     console.log('Cloudinary response:', JSON.stringify(data, null, 2));
+    console.log('Cloudinary resources count:', data.resources ? data.resources.length : 'No resources array');
+    console.log('Cloudinary resources:', data.resources ? data.resources.map(r => r.public_id) : 'No resources');
     
     // Transform Cloudinary response to our format
     const images = data.resources.map((resource, index) => ({
