@@ -3,13 +3,6 @@
   "version": "1.0.0",
   "description": "Backend server for Emerald Visions photography website",
   "main": "api/index.js",
-  "scripts": {
-    "start": "node api/index.js",
-    "dev": "node api/index.js"
-  },
-  "dependencies": {
-    "cloudinary": "^2.6.0"
-  },
   "engines": {
     "node": "22.x"
   }

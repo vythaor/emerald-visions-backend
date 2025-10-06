@@ -1,22 +1,4 @@
-const cloudinary = require('cloudinary').v2;
-
-// Configure Cloudinary
-const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
-const apiKey = process.env.CLOUDINARY_API_KEY;
-const apiSecret = process.env.CLOUDINARY_API_SECRET;
-
-if (!cloudName || !apiKey || !apiSecret) {
-  console.error('Missing Cloudinary configuration');
-}
-
-cloudinary.config({
-  cloud_name: cloudName,
-  api_key: apiKey,
-  api_secret: apiSecret,
-  secure: true,
-});
-
-// CORS headers
+// Minimal serverless function without external dependencies
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
@@ -58,38 +40,20 @@ module.exports = async function handler(req, res) {
       return sendJson(400, { error: 'Missing folder' });
     }
 
-    // Search in the nested folder structure: 2am/{folder}
-    const searchFolder = `2am/${folder}`;
-    console.log(`[cloudinary-server] Searching for images in folder: ${searchFolder}`);
-    
-    try {
-      const result = await cloudinary.search
-        .expression(`folder:${searchFolder} AND resource_type:image`)
-        .sort_by('public_id', 'desc')
-        .max_results(Math.min(Math.max(max, 1), 100))
-        .execute();
-
-      console.log(`[cloudinary-server] Found ${result.resources?.length || 0} resources for folder: ${searchFolder}`);
-      
-      const sources = (result.resources || []).map((r) => {
-        const url = r.secure_url || r.url;
-        console.log(`[cloudinary-server] Resource: ${r.public_id} -> ${url}`);
-        return url;
-      }).filter(Boolean);
-      
-      console.log(`[cloudinary-server] Returning ${sources.length} valid URLs for folder: ${searchFolder}`);
-      return sendJson(200, { folder: searchFolder, count: sources.length, sources });
-    } catch (err) {
-      console.error(`[cloudinary-server] Error searching folder ${searchFolder}:`, err);
-      return sendJson(500, { error: 'Cloudinary search failed', detail: String(err) });
-    }
+    // For now, return a simple response to test if the function works
+    return sendJson(200, { 
+      message: 'API is working!', 
+      folder: folder,
+      max: max,
+      timestamp: new Date().toISOString()
+    });
   }
 
   if (pathname === '/api/health') {
     return sendJson(200, { 
       ok: true, 
       timestamp: new Date().toISOString(),
-      cloudinary_configured: !!cloudName
+      message: 'Health check passed'
     });
   }
 
