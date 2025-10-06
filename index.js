@@ -48,15 +48,21 @@ const server = http.createServer(async (req, res) => {
   // Enhanced CORS headers for production
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
     'Access-Control-Max-Age': '86400', // 24 hours
   };
 
+  // Handle preflight requests
   if (req.method === 'OPTIONS') {
-    res.writeHead(204, corsHeaders);
+    res.writeHead(200, corsHeaders);
     return res.end();
   }
+
+  // Add CORS headers to all responses
+  Object.entries(corsHeaders).forEach(([key, value]) => {
+    res.setHeader(key, value);
+  });
 
   if (pathname === '/api/images' && req.method === 'GET') {
     const folder = typeof query.folder === 'string' ? query.folder : '';
