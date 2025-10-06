@@ -43,12 +43,12 @@ module.exports = async (req, res) => {
       throw new Error('Cloudinary environment variables not set');
     }
     
-    // Use Cloudinary prefix to filter by folder
-    // This searches for images that start with the folder path
-    const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/resources/image?type=upload&prefix=${cloudinaryFolder}/&max_results=${max}`;
+    // Try using the folder parameter instead of prefix
+    // This should filter by the actual Cloudinary folder structure
+    const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/resources/image?type=upload&folder=${cloudinaryFolder}&max_results=${max}`;
     
     console.log('Cloudinary URL:', cloudinaryUrl);
-    console.log('Searching for folder prefix:', cloudinaryFolder);
+    console.log('Searching for folder:', cloudinaryFolder);
     
     // Also try without prefix to see if we can get any images
     const testUrl = `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/resources/image?type=upload&max_results=5`;
