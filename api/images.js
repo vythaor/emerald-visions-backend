@@ -43,13 +43,12 @@ module.exports = async (req, res) => {
       throw new Error('Cloudinary environment variables not set');
     }
     
-    // Since Cloudinary UI folders don't translate to API filtering,
-    // we'll use a hybrid approach: get all images and filter by context/metadata
-    // First, let's try to get all images and see what metadata is available
-    const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/resources/image?type=upload&max_results=${max}`;
+    // Use Cloudinary context to filter by category
+    // This requires images to have context data set
+    const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/resources/image?type=upload&context=${folder}&max_results=${max}`;
     
     console.log('Cloudinary URL:', cloudinaryUrl);
-    console.log('Searching for folder:', cloudinaryFolder);
+    console.log('Searching for context:', folder);
     
     // Also try without prefix to see if we can get any images
     const testUrl = `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/resources/image?type=upload&max_results=5`;
