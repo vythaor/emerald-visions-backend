@@ -43,12 +43,12 @@ module.exports = async (req, res) => {
       throw new Error('Cloudinary environment variables not set');
     }
     
-    // Fetch images from Cloudinary using tags instead of prefix
-    // Since the images don't have folder prefixes in their public IDs, we'll use tags
-    const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/resources/image?type=upload&tags=${folder}&max_results=${max}`;
+    // Fetch images from Cloudinary using folder-based filtering
+    // Try using the folder parameter to search within the specific Cloudinary folder
+    const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/resources/image?type=upload&folder=${cloudinaryFolder}&max_results=${max}`;
     
     console.log('Cloudinary URL:', cloudinaryUrl);
-    console.log('Searching for tag:', folder);
+    console.log('Searching for folder:', cloudinaryFolder);
     
     // Also try without prefix to see if we can get any images
     const testUrl = `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/resources/image?type=upload&max_results=5`;
