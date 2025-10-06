@@ -15,14 +15,14 @@ module.exports = (req, res) => {
   const pathname = url.pathname;
   const searchParams = url.searchParams;
   
-  console.log('Request received:', { method: req.method, pathname, url: req.url });
+  console.log('Index function called:', { method: req.method, pathname, url: req.url });
   
   // Handle different endpoints
   if (pathname === '/health') {
     return res.status(200).json({
       ok: true,
       timestamp: new Date().toISOString(),
-      message: 'Health check passed'
+      message: 'Health check passed from index.js'
     });
   }
   
@@ -31,10 +31,19 @@ module.exports = (req, res) => {
     const max = parseInt(searchParams.get('max')) || 30;
     
     return res.status(200).json({
-      message: 'Images API is working!',
+      message: 'Images API is working from index.js!',
       folder: folder,
       max: max,
       timestamp: new Date().toISOString()
+    });
+  }
+  
+  // Default response for root path
+  if (pathname === '/') {
+    return res.status(200).json({
+      message: 'Main API is working!',
+      timestamp: new Date().toISOString(),
+      availableEndpoints: ['/health', '/images']
     });
   }
   
@@ -42,6 +51,7 @@ module.exports = (req, res) => {
   res.status(404).json({
     error: 'Not found',
     pathname: pathname,
-    method: req.method
+    method: req.method,
+    availableEndpoints: ['/health', '/images']
   });
 };
