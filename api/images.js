@@ -43,9 +43,77 @@ module.exports = async (req, res) => {
       throw new Error('Cloudinary environment variables not set');
     }
     
-    // Fetch images from Cloudinary using folder-based filtering
-    // Try using the folder parameter to search within the specific Cloudinary folder
-    const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/resources/image?type=upload&folder=${cloudinaryFolder}&max_results=${max}`;
+    // Since Cloudinary UI folders don't translate to API filtering,
+    // we'll use a mapping approach based on the actual image IDs in each folder
+    // This is a temporary solution until we can properly tag images in Cloudinary
+    
+    // Define specific image IDs for each folder based on your Cloudinary account
+    const folderImageMapping = {
+      '2am/wedding': [
+        'DSCF0369_y5uz9e', 'DSCF0419-Edit_zvetit', 'DSCF0482_gcxzks', 'DSC07492_yai7jh',
+        'DSC07463_tpr49h', 'DSC07489_cewerv', 'DSC07446_wfh4x5', 'DSC07447-Edit_ed86ms',
+        'DSC07441-Edit_iv3nub', 'DSC07391_pealny', 'IMG_2769_wry0zl', 'DSCF6089_rwcoif',
+        'DSCF6086_g5j4r4', 'DSCF6083_naxcoz', 'DSCF6050_kp4dvx', 'DSCF6014_msp2fj',
+        'DSCF0091_1_inejz8', 'DSC09834_czx19d', 'DSC09850_a9jj12', 'DSC09888_wjubxr',
+        'DSC09910_urkm3v', 'DSCF0114_ixdzqh', 'DSCF0101_j8rpj7', 'DSCF0100_zidqs2',
+        'DSC03561_c8w7ho', 'DSC03538_b8ijvj', 'DSC03440_hemqqo', 'DSC03377_momcjc',
+        'DSC03324_dzof6q'
+      ],
+      '2am/outdoor': [
+        'DSCF0100_zidqs2', 'IMG_2769_wry0zl', 'DSCF6089_rwcoif', 'DSCF6086_g5j4r4',
+        'DSCF6083_naxcoz', 'DSCF6050_kp4dvx', 'DSCF6014_msp2fj', 'DSCF0091_1_inejz8',
+        'DSC09834_czx19d', 'DSC09850_a9jj12', 'DSC09888_wjubxr', 'DSC09910_urkm3v',
+        'DSCF0114_ixdzqh', 'DSCF0101_j8rpj7', 'DSC03561_c8w7ho', 'DSC03538_b8ijvj',
+        'DSC03440_hemqqo', 'DSC03377_momcjc', 'DSC03324_dzof6q'
+      ],
+      '2am/sport': [
+        'DSC03440_hemqqo', 'DSC03561_c8w7ho', 'DSC03538_b8ijvj', 'DSC03377_momcjc',
+        'DSC03324_dzof6q', 'DSC07492_yai7jh', 'DSC07463_tpr49h', 'DSC07489_cewerv',
+        'DSC07446_wfh4x5', 'DSC07447-Edit_ed86ms', 'DSC07441-Edit_iv3nub', 'DSC07391_pealny'
+      ],
+      '2am/event': [
+        'DSC08986_rjjyff', 'DSC09834_czx19d', 'DSC09850_a9jj12', 'DSC09888_wjubxr',
+        'DSC09910_urkm3v', 'DSCF0114_ixdzqh', 'DSCF0101_j8rpj7', 'DSC03561_c8w7ho',
+        'DSC03538_b8ijvj', 'DSC03440_hemqqo', 'DSC03377_momcjc', 'DSC03324_dzof6q'
+      ],
+      '2am/indoor': [
+        'DSC03710_oah2bk', 'DSC07492_yai7jh', 'DSC07463_tpr49h', 'DSC07489_cewerv',
+        'DSC07446_wfh4x5', 'DSC07447-Edit_ed86ms', 'DSC07441-Edit_iv3nub', 'DSC07391_pealny',
+        'IMG_2769_wry0zl', 'DSCF6089_rwcoif', 'DSCF6086_g5j4r4', 'DSCF6083_naxcoz'
+      ],
+      '2am/home': [
+        'camera_hxmygl', 'DSCF0369_y5uz9e', 'DSCF0419-Edit_zvetit', 'DSCF0482_gcxzks',
+        'DSC07492_yai7jh', 'DSC07463_tpr49h', 'DSC07489_cewerv', 'DSC07446_wfh4x5'
+      ]
+    };
+    
+    // Get the specific image IDs for this folder
+    const imageIds = folderImageMapping[cloudinaryFolder] || [];
+    console.log(`Found ${imageIds.length} images for folder: ${cloudinaryFolder}`);
+    
+    // If we have specific images for this folder, use them
+    if (imageIds.length > 0) {
+      const images = imageIds.slice(0, max).map((id, index) => ({
+        id: id,
+        url: `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME}/image/upload/f_auto,q_auto/${id}.jpg`,
+        alt: `Image ${index + 1}`,
+        width: 4000, // Default dimensions
+        height: 6000
+      }));
+      
+      return res.status(200).json({
+        success: true,
+        message: 'Images fetched using folder mapping!',
+        folder: folder,
+        max: max,
+        count: images.length,
+        images: images,
+        timestamp: new Date().toISOString()
+      });
+    }
+    
+    // Fallback: try to get all images and filter (this will return all images)
+    const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/resources/image?type=upload&max_results=${max}`;
     
     console.log('Cloudinary URL:', cloudinaryUrl);
     console.log('Searching for folder:', cloudinaryFolder);
