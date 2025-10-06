@@ -43,9 +43,10 @@ module.exports = async (req, res) => {
       throw new Error('Cloudinary environment variables not set');
     }
     
-    // Try using the folder parameter instead of prefix
-    // This should filter by the actual Cloudinary folder structure
-    const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/resources/image?type=upload&folder=${cloudinaryFolder}&max_results=${max}`;
+    // Since Cloudinary UI folders don't translate to API filtering,
+    // we'll use a hybrid approach: get all images and filter by context/metadata
+    // First, let's try to get all images and see what metadata is available
+    const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/resources/image?type=upload&max_results=${max}`;
     
     console.log('Cloudinary URL:', cloudinaryUrl);
     console.log('Searching for folder:', cloudinaryFolder);
@@ -76,7 +77,11 @@ module.exports = async (req, res) => {
     const data = await response.json();
     console.log('Cloudinary response:', JSON.stringify(data, null, 2));
     console.log('Cloudinary resources count:', data.resources ? data.resources.length : 'No resources array');
-    console.log('Cloudinary resources:', data.resources ? data.resources.map(r => r.public_id) : 'No resources');
+    
+    // Log sample resource to see what metadata is available
+    if (data.resources && data.resources.length > 0) {
+      console.log('Sample resource metadata:', JSON.stringify(data.resources[0], null, 2));
+    }
     
     // Transform Cloudinary response to our format
     const images = data.resources.map((resource, index) => ({
