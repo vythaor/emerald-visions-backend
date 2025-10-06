@@ -31,7 +31,7 @@ module.exports = async function handler(req, res) {
   const pathname = url.pathname;
   const searchParams = url.searchParams;
 
-  if (pathname === '/api/images' && req.method === 'GET') {
+  if (pathname === '/images' && req.method === 'GET') {
     const folder = searchParams.get('folder') || '';
     const max = parseInt(searchParams.get('max')) || 30;
     
@@ -48,7 +48,7 @@ module.exports = async function handler(req, res) {
     });
   }
 
-  if (pathname === '/api/health') {
+  if (pathname === '/health') {
     return sendJson(200, { 
       ok: true, 
       timestamp: new Date().toISOString(),
