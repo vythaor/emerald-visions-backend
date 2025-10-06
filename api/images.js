@@ -43,12 +43,12 @@ module.exports = async (req, res) => {
       throw new Error('Cloudinary environment variables not set');
     }
     
-    // Use Cloudinary context to filter by category
-    // This requires images to have context data set
-    const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/resources/image?type=upload&context=${folder}&max_results=${max}`;
+    // Use Cloudinary tags for filtering
+    // This is the most practical solution - tag your images with categories
+    const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/resources/image?type=upload&tags=${folder}&max_results=${max}`;
     
     console.log('Cloudinary URL:', cloudinaryUrl);
-    console.log('Searching for context:', folder);
+    console.log('Searching for tag:', folder);
     
     // Also try without prefix to see if we can get any images
     const testUrl = `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/resources/image?type=upload&max_results=5`;
