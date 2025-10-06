@@ -1,5 +1,4 @@
-const { v2: cloudinary } = require('cloudinary');
-require('dotenv').config();
+const cloudinary = require('cloudinary').v2;
 
 // Configure Cloudinary
 const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
@@ -92,29 +91,6 @@ module.exports = async function handler(req, res) {
       timestamp: new Date().toISOString(),
       cloudinary_configured: !!cloudName
     });
-  }
-
-  if (pathname === '/api/test' && req.method === 'GET') {
-    const folder = searchParams.get('folder') || 'wedding';
-    const searchFolder = `2am/${folder}`;
-    try {
-      const result = await cloudinary.search
-        .expression(`folder:${searchFolder} AND resource_type:image`)
-        .max_results(10)
-        .execute();
-      
-      return sendJson(200, { 
-        folder: searchFolder, 
-        total: result.total_count,
-        resources: result.resources?.map(r => ({
-          public_id: r.public_id,
-          url: r.secure_url || r.url,
-          folder: r.folder
-        })) || []
-      });
-    } catch (err) {
-      return sendJson(500, { error: String(err) });
-    }
   }
 
   return sendJson(404, { error: 'Not found' });
