@@ -113,13 +113,28 @@ module.exports = async (req, res) => {
     const mockImages = [
       {
         id: '1',
-        url: 'https://res.cloudinary.com/ddwq9besf/image/upload/f_auto,q_auto/sample1.jpg',
-        alt: 'Sample image 1'
+        url: 'https://res.cloudinary.com/ddwq9besf/image/upload/f_auto,q_auto/DSC03710_oah2bk.jpg',
+        alt: 'Fallback image 1'
       },
       {
         id: '2', 
-        url: 'https://res.cloudinary.com/ddwq9besf/image/upload/f_auto,q_auto/sample2.jpg',
-        alt: 'Sample image 2'
+        url: 'https://res.cloudinary.com/ddwq9besf/image/upload/f_auto,q_auto/DSCF0482_gcxzks.jpg',
+        alt: 'Fallback image 2'
+      },
+      {
+        id: '3',
+        url: 'https://res.cloudinary.com/ddwq9besf/image/upload/f_auto,q_auto/DSC03440_hemqqo.jpg',
+        alt: 'Fallback image 3'
+      },
+      {
+        id: '4', 
+        url: 'https://res.cloudinary.com/ddwq9besf/image/upload/f_auto,q_auto/DSCF0100_zidqs2.jpg',
+        alt: 'Fallback image 4'
+      },
+      {
+        id: '5',
+        url: 'https://res.cloudinary.com/ddwq9besf/image/upload/f_auto,q_auto/DSC08986_rjjyff.jpg',
+        alt: 'Fallback image 5'
       }
     ];
     
@@ -128,7 +143,10 @@ module.exports = async (req, res) => {
       message: 'Using fallback images due to Cloudinary error',
       folder: folder,
       max: max,
+      offset: offset,
       count: mockImages.length,
+      hasMore: false,
+      nextCursor: null,
       images: mockImages.slice(0, max),
       error: error.message,
       timestamp: new Date().toISOString()
