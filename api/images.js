@@ -16,7 +16,8 @@ module.exports = async (req, res) => {
   const url = new URL(req.url, `https://${req.headers.host}`);
   const searchParams = url.searchParams;
   const folder = searchParams.get('folder') || '';
-  const max = parseInt(searchParams.get('max')) || 30;
+  const max = parseInt(searchParams.get('max')) || 30; // Default to 30 for pagination
+  const offset = parseInt(searchParams.get('offset')) || 0;
   
   // Map folder names to actual Cloudinary folder paths
   const folderMapping = {
@@ -25,7 +26,8 @@ module.exports = async (req, res) => {
     'sport': '2am/sport',
     'event': '2am/event',
     'indoor': '2am/indoor',
-    'home': '2am/home'
+    'home': '2am/home',
+    'enhance': '2am/enhance'
   };
   
   const cloudinaryFolder = folderMapping[folder] || `2am/${folder}`;
@@ -43,9 +45,9 @@ module.exports = async (req, res) => {
       throw new Error('Cloudinary environment variables not set');
     }
     
-    // Use Cloudinary Search API with folder expression
-    // This is the proper way to search by folder path
-    const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/resources/search?expression=folder:${cloudinaryFolder}&max_results=${max}`;
+    // Use Cloudinary Search API with folder expression and pagination
+    // This is the proper way to search by folder path with pagination
+    const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/resources/search?expression=folder:${cloudinaryFolder}&max_results=${max}&next_cursor=${offset}`;
     
     console.log('Cloudinary URL:', cloudinaryUrl);
     console.log('Searching for folder:', cloudinaryFolder);
@@ -96,7 +98,10 @@ module.exports = async (req, res) => {
       message: 'Images fetched from Cloudinary!',
       folder: folder,
       max: max,
+      offset: offset,
       count: images.length,
+      hasMore: data.next_cursor ? true : false,
+      nextCursor: data.next_cursor || null,
       images: images,
       timestamp: new Date().toISOString()
     });
