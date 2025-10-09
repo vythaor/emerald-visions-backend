@@ -47,7 +47,12 @@ module.exports = async (req, res) => {
     
     // Use Cloudinary Search API with folder expression and pagination
     // This is the proper way to search by folder path with pagination
-    const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/resources/search?expression=folder:${cloudinaryFolder}&max_results=${max}&next_cursor=${offset}`;
+    let cloudinaryUrl = `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/resources/search?expression=folder:${cloudinaryFolder}&max_results=${max}`;
+    
+    // Only add next_cursor if offset is not 0
+    if (offset && offset !== 0) {
+      cloudinaryUrl += `&next_cursor=${offset}`;
+    }
     
     console.log('Cloudinary URL:', cloudinaryUrl);
     console.log('Searching for folder:', cloudinaryFolder);
