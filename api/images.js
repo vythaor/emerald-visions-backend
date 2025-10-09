@@ -17,7 +17,7 @@ module.exports = async (req, res) => {
   const searchParams = url.searchParams;
   const folder = searchParams.get('folder') || '';
   const max = parseInt(searchParams.get('max')) || 30; // Default to 30 for pagination
-  const offset = parseInt(searchParams.get('offset')) || 0;
+  const cursor = searchParams.get('cursor') || null; // Use cursor instead of offset
   
   // Map folder names to actual Cloudinary folder paths
   const folderMapping = {
@@ -49,9 +49,9 @@ module.exports = async (req, res) => {
     // This is the proper way to search by folder path with pagination
     let cloudinaryUrl = `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/resources/search?expression=folder:${cloudinaryFolder}&max_results=${max}`;
     
-    // Only add next_cursor if offset is not 0
-    if (offset && offset !== 0) {
-      cloudinaryUrl += `&next_cursor=${offset}`;
+    // Only add next_cursor if cursor is provided
+    if (cursor) {
+      cloudinaryUrl += `&next_cursor=${cursor}`;
     }
     
     console.log('Cloudinary URL:', cloudinaryUrl);
@@ -103,7 +103,7 @@ module.exports = async (req, res) => {
       message: 'Images fetched from Cloudinary!',
       folder: folder,
       max: max,
-      offset: offset,
+      cursor: cursor,
       count: images.length,
       hasMore: data.next_cursor ? true : false,
       nextCursor: data.next_cursor || null,
@@ -148,7 +148,7 @@ module.exports = async (req, res) => {
       message: 'Using fallback images due to Cloudinary error',
       folder: folder,
       max: max,
-      offset: offset,
+      cursor: cursor,
       count: mockImages.length,
       hasMore: false,
       nextCursor: null,
