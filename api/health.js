@@ -17,4 +17,3 @@ module.exports = (req, res) => {
     status: 'healthy'
   });
 };
-# Trigger new deployment Fri Oct 10 17:43:02 BST 2025
