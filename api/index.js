@@ -15,8 +15,6 @@ module.exports = (req, res) => {
   const pathname = url.pathname;
   const searchParams = url.searchParams;
   
-  console.log('Index function called:', { method: req.method, pathname, url: req.url });
-  
   // Handle different endpoints
   if (pathname === '/health') {
     return res.status(200).json({
