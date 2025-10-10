@@ -2,21 +2,9 @@ const https = require('https');
 
 module.exports = async (req, res) => {
   // Set CORS headers
-  const allowedOrigins = [
-    'https://studio2am.lovable.app',
-    'http://localhost:3000',
-    'http://localhost:5173',
-    '*'
-  ];
-  
-  const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
-    res.setHeader('Access-Control-Allow-Origin', origin || '*');
-  }
-  
+  res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
   
   // Handle preflight requests
   if (req.method === 'OPTIONS') {
