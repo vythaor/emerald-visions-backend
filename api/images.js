@@ -18,8 +18,6 @@ module.exports = async (req, res) => {
     const folder = url.searchParams.get('folder') || '';
     const max = parseInt(url.searchParams.get('max')) || 30;
 
-    console.log(`[images.js] Fetching images for folder: ${folder}, max: ${max}`);
-
     // Check environment variables
     const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
     const apiKey = process.env.CLOUDINARY_API_KEY;
@@ -38,8 +36,6 @@ module.exports = async (req, res) => {
     // Build Cloudinary API URL
     const cloudinaryFolder = `2am/${folder}`;
     const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${cloudName}/resources/search?expression=folder:${cloudinaryFolder}&max_results=${max}`;
-    
-    console.log(`[images.js] Cloudinary URL: ${cloudinaryUrl}`);
 
     // Make request to Cloudinary
     const options = {
@@ -59,7 +55,6 @@ module.exports = async (req, res) => {
       cloudinaryRes.on('end', () => {
         try {
           const result = JSON.parse(data);
-          console.log(`[images.js] Cloudinary response status: ${cloudinaryRes.statusCode}`);
           
           if (cloudinaryRes.statusCode !== 200) {
             console.error('[images.js] Cloudinary API error:', result);
@@ -75,8 +70,6 @@ module.exports = async (req, res) => {
             public_id: resource.public_id,
             format: resource.format
           })) : [];
-
-          console.log(`[images.js] Found ${images.length} images for folder: ${folder}`);
 
           res.status(200).json({
             images: images,
@@ -120,4 +113,3 @@ module.exports = async (req, res) => {
     });
   }
 };
-// Trigger deployment after structure cleanup Fri Oct 10 18:33:20 BST 2025

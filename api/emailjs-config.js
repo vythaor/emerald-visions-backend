@@ -10,8 +10,6 @@ module.exports = (req, res) => {
     return;
   }
   
-  console.log('EmailJS config endpoint called:', { method: req.method, url: req.url });
-  
   // Return EmailJS configuration (only the public key for security)
   res.status(200).json({
     publicKey: process.env.VITE_EMAILJS_PUBLIC_KEY || '',
