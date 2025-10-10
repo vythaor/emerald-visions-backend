@@ -38,12 +38,20 @@ module.exports = (req, res) => {
     });
   }
   
+  if (pathname === '/emailjs-config') {
+    // Return EmailJS configuration (only the public key for security)
+    return res.status(200).json({
+      publicKey: process.env.VITE_EMAILJS_PUBLIC_KEY || '',
+      timestamp: new Date().toISOString()
+    });
+  }
+  
   // Default response for root path
   if (pathname === '/') {
     return res.status(200).json({
       message: 'Main API is working!',
       timestamp: new Date().toISOString(),
-      availableEndpoints: ['/health', '/images']
+      availableEndpoints: ['/health', '/images', '/emailjs-config']
     });
   }
   
@@ -52,6 +60,6 @@ module.exports = (req, res) => {
     error: 'Not found',
     pathname: pathname,
     method: req.method,
-    availableEndpoints: ['/health', '/images']
+    availableEndpoints: ['/health', '/images', '/emailjs-config']
   });
 };
