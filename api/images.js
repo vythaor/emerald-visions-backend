@@ -17,6 +17,7 @@ module.exports = async (req, res) => {
     const url = new URL(req.url, `https://${req.headers.host}`);
     const folder = url.searchParams.get('folder') || '';
     const max = parseInt(url.searchParams.get('max')) || 30;
+    const cursor = url.searchParams.get('cursor') || null;
 
     // Check environment variables
     const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
@@ -33,9 +34,14 @@ module.exports = async (req, res) => {
       });
     }
 
-    // Build Cloudinary API URL
+    // Build Cloudinary API URL with pagination support
     const cloudinaryFolder = `2am/${folder}`;
-    const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${cloudName}/resources/search?expression=folder:${cloudinaryFolder}&max_results=${max}`;
+    let cloudinaryUrl = `https://api.cloudinary.com/v1_1/${cloudName}/resources/search?expression=folder:${cloudinaryFolder}&max_results=${max}`;
+    
+    // Add cursor for pagination if provided
+    if (cursor) {
+      cloudinaryUrl += `&next_cursor=${encodeURIComponent(cursor)}`;
+    }
 
     // Make request to Cloudinary
     const options = {
@@ -71,12 +77,16 @@ module.exports = async (req, res) => {
             format: resource.format
           })) : [];
 
+          // Check if there are more results based on Cloudinary's response
+          const hasMore = result.next_cursor ? true : false;
+          const nextCursor = result.next_cursor || null;
+
           res.status(200).json({
             images: images,
             count: images.length,
             folder: folder,
-            hasMore: false,
-            nextCursor: null
+            hasMore: hasMore,
+            nextCursor: nextCursor
           });
 
         } catch (parseError) {
