@@ -1,7 +1,7 @@
 // Emerald Visions image API — Cloudflare Worker
 //
 // GET /api/images?folder=wedding&max=12&cursor=...
-//   Lists images in the Cloudinary folder "2am/<folder>".
+//   Lists images in the Cloudinary folder "2am/<folder>" (subfolders too: folder=portraits/hong-kong).
 //   Responses are cached at the Cloudflare edge so most requests never reach Cloudinary.
 // GET /api/health
 
@@ -45,7 +45,8 @@ export default {
 
 async function handleImages(url, env, ctx) {
   const folder = url.searchParams.get("folder") || "";
-  if (!/^[a-z0-9_-]+$/i.test(folder)) {
+  // One folder, or a subfolder path like "portraits/hong-kong"
+  if (!/^[a-z0-9_-]+(\/[a-z0-9_-]+)*$/i.test(folder)) {
     return json({ error: "Invalid folder" }, 400);
   }
   const requestedMax = parseInt(url.searchParams.get("max") || "", 10);
