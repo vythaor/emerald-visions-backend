@@ -1,31 +1,26 @@
-# Emerald Visions Backend
+# Emerald Visions backend
 
-Backend server for the Emerald Visions photography website.
+Image API for the Emerald Visions photography site, running as a Cloudflare Worker.
 
-## Environment Variables
+## Endpoints
 
-Create a `.env` file with your Cloudinary credentials:
+- `GET /api/images?folder=wedding&max=12&cursor=...` lists the images in Cloudinary folder `2am/<folder>`
+  (`url`, `public_id`, `format`, `width`, `height`, plus `hasMore` / `nextCursor`). Listings are cached
+  at the Cloudflare edge for 10 minutes, so new uploads can take up to 10 minutes to appear.
+- `GET /api/health`
 
-```
-CLOUDINARY_CLOUD_NAME=your_cloud_name
-CLOUDINARY_API_KEY=your_api_key
-CLOUDINARY_API_SECRET=your_api_secret
-PORT=3001
-```
-
-## Development
+## Local development
 
 ```bash
 npm install
-npm run dev
+cp .dev.vars.example .dev.vars   # fill in your Cloudinary API key and secret
+npm run dev                      # http://localhost:8787
 ```
 
-## Deployment
+## Deploy
 
-This server is designed to be deployed to Vercel, Railway, or Render.
-
-## API Endpoints
-
-- `GET /health` - Health check
-- `GET /api/images?folder={folder}&max={max}` - Get images from Cloudinary folder
-- `GET /api/test?folder={folder}` - Test endpoint for debugging
+```bash
+npx wrangler secret put CLOUDINARY_API_KEY
+npx wrangler secret put CLOUDINARY_API_SECRET
+npm run deploy
+```

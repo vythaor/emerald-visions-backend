@@ -1,5 +1,13 @@
 {
   "name": "emerald-visions-backend",
-  "version": "1.0.0",
-  "description": "Backend server for Emerald Visions photography website"
+  "version": "2.0.0",
+  "private": true,
+  "description": "Image API for the Emerald Visions photography website (Cloudflare Worker)",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "4.158.0"
+  }
 }

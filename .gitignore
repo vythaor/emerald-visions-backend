@@ -7,3 +7,5 @@ node_modules
 *.log
 .DS_Store
 git-filter-repo
+.dev.vars
+.wrangler
